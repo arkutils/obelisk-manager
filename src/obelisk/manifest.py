@@ -3,21 +3,22 @@ from pathlib import Path
 from typing import Any
 
 
-@dataclass
+@dataclass(kw_only=True)
 class ManifestEntry:
     filename: str
-    version: str | None
-    format: str | None
-    mod_data: dict[str, Any] | None
+    version: str | None = None
+    hash: str | None = None
+    format: str | None = None
+    mod_data: dict[str, Any] | None = None
 
 
 def parse_manifest(path: Path) -> list[ManifestEntry]:
-    return []
+    raise NotImplementedError
 
 
 def write_manifest(path: Path, entries: list[ManifestEntry]) -> None:
-    pass
+    raise NotImplementedError
 
 
 def manifest_match(a: list[ManifestEntry], b: list[ManifestEntry]) -> bool:
-    return False
+    raise NotImplementedError
