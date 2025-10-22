@@ -1,0 +1,16 @@
+{
+	"version": "1.1.2",
+	"format": "1.16-mod-remap",
+	"mod": {
+		"id": 654321,
+		"tag": "AnotherModTag",
+		"title": "Another Mod Name",
+		"author": "A.N. Other"
+	},
+    "data": {
+        "dummy": false
+    },
+    "more_data": {
+        "extra_info2": "Additional data"
+    }
+}

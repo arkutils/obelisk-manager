@@ -1,0 +1,85 @@
+[project]
+name = "obelisk-manager"
+version = "0.1.0"
+description = "Utility for managing data in Obelisk format"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "rich>=14.2.0",
+    "typer>=0.19.2",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.2",
+]
+
+[project.scripts]
+obelisk = "obelisk.main:app"
+
+[tool.uv]
+package = true
+
+
+#### Ruff
+[tool.ruff]
+target-version = "py312"
+
+indent-width = 4
+line-length = 112
+
+src = ["src"]
+exclude = [
+    ".git",
+    ".venv",
+    ".vscode",
+    ".pytest_cache",
+    "__pycache__",
+]
+
+[tool.ruff.lint]
+future-annotations = true
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+select = ['E', 'F', 'UP', 'I', 'N', 'YTT', 'ASYNC', 'S', 'FBT', 'B', 'A', 'COM', 'C4', 'T10', 'FA', 'ISC', 'G', 'INP', 'PYI', 'PT', 'Q', 'RSE', 'RET', 'SLF', 'SLOT', 'SIM', 'TCH', 'ARG', 'PTH', 'FIX', 'ERA', 'PL', 'FLY', 'PERF', 'FURB', 'RUF']
+ignore = ['S101', 'S603', 'A003', 'C408', 'RET504', 'PLR2004', 'TRY003', 'ERA001', 'TC001']
+unfixable = ['ERA','F841']
+fixable = ["ALL"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["E402"]
+"src/obelisk/commands/*.py" = ["B008", "FBT001", "FBT002", "FBT003", "PLR0913", "ARG001"]
+"interactive/**.py" = ["F401", "F403", "F405", "I001", "INP001", "TCH001"]
+
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = 'single'
+docstring-quotes = 'double'
+avoid-escape = true
+multiline-quotes = 'double'
+
+[tool.ruff.lint.isort]
+known-local-folder = ["src"]
+order-by-type = true
+length-sort-straight = true
+lines-after-imports = 2
+
+[tool.ruff.format]
+quote-style = "single"
+skip-magic-trailing-comma = false
+line-ending = "lf"
+
+
+#### PyRight
+[tool.pyright]
+pythonVersion = "3.12"
+reportUnusedImport = false
+extraPaths = ["src"]
+typeCheckingMode = "strict"
+useLibraryCodeForTypes = true
+
+
+#### Pytest
+[tool.pytest.ini_options]
+testpaths = ["src", "tests"]
+addopts = "--doctest-modules"
+doctest_optionflags = "NORMALIZE_WHITESPACE IGNORE_EXCEPTION_DETAIL NUMBER"

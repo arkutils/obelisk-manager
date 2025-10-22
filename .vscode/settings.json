@@ -1,0 +1,32 @@
+{
+    "files.exclude": {
+        ".venv": true,
+        ".vscode/.ropeproject": true,
+        "**/__pycache__": true,
+        "**/.pytest_cache": true,
+        "tmp": true,
+    },
+    "search.exclude": {
+        "./livedata": true,
+        "./output": true,
+        "./tmp": true,
+    },
+
+    "[python]": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit",
+            "source.fixAll": "explicit",
+        }
+    },
+
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
+    "python.analysis.diagnosticMode": "workspace",
+    "python.testing.pytestEnabled": true,
+    "ruff.enable": true,
+
+    "git.repositoryScanMaxDepth": 0,
+    "git.autoRepositoryDetection": false,
+
+    "cSpell.diagnosticLevel": "Hint",
+}

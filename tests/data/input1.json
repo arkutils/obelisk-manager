@@ -1,0 +1,17 @@
+{
+	"version": "23456345.11.1",
+	"format": "1.16-mod-remap",
+	"mod": {
+		"id": 123456,
+		"ASA": true,
+		"tag": "SomeModTag",
+		"title": "The Mod Name",
+		"author": "A Mod Author"
+	},
+    "data": {
+        "dummy": true
+    },
+    "more_data": {
+        "extra_info": "Additional data"
+    }
+}
