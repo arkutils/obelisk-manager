@@ -38,7 +38,7 @@ exclude = [
 ]
 
 [tool.ruff.lint]
-future-annotations = true
+# future-annotations = true
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 select = ['E', 'F', 'UP', 'I', 'N', 'YTT', 'ASYNC', 'S', 'FBT', 'B', 'A', 'COM', 'C4', 'T10', 'FA', 'ISC', 'G', 'INP', 'PYI', 'PT', 'Q', 'RSE', 'RET', 'SLF', 'SLOT', 'SIM', 'TCH', 'ARG', 'PTH', 'FIX', 'ERA', 'PL', 'FLY', 'PERF', 'FURB', 'RUF']
@@ -50,6 +50,7 @@ fixable = ["ALL"]
 "__init__.py" = ["E402"]
 "src/obelisk/commands/*.py" = ["B008", "FBT001", "FBT002", "FBT003", "PLR0913", "ARG001"]
 "interactive/**.py" = ["F401", "F403", "F405", "I001", "INP001", "TCH001"]
+"tests/**.py" = ["INP001"]
 
 [tool.ruff.lint.flake8-quotes]
 inline-quotes = 'single'
