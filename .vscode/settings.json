@@ -29,4 +29,7 @@
     "git.autoRepositoryDetection": false,
 
     "cSpell.diagnosticLevel": "Hint",
+    "cSpell.words": [
+        "serialiser"
+    ],
 }

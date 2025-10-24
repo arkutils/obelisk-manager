@@ -1,0 +1,21 @@
+{
+	"format": "4",
+	"files": {
+		"111111111-PrimitivePlus/items.json": {
+			"version": "346.11.8907760",
+			"mod": { "id": "111111111", "tag": "PrimitivePlus", "title": "PrimitivePlus", "official": true }
+		},
+		"drops.json": {
+			"version": "358.3.11382644",
+			"format": "7"
+		},
+		"engrams.json": {
+			"version": "358.3.11382644",
+			"format": "2"
+		},
+		"event_colors.json": {
+			"version": "357.12.10956461",
+			"format": "1"
+		}
+	}
+}

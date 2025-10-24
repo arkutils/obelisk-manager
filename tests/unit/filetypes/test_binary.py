@@ -24,7 +24,7 @@ def test_get_metadata_from_binary_empty_file(tmp_path: Path) -> None:
     # other fields should remain None
     assert entry.version is None
     assert entry.format is None
-    assert entry.mod_data is None
+    assert entry.mod is None
 
 
 def test_get_metadata_from_binary_small_content(tmp_path: Path) -> None:

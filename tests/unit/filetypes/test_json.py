@@ -32,7 +32,7 @@ def test_get_metadata_from_json_valid_with_mock(monkeypatch: pytest.MonkeyPatch)
     assert entry.filename == 'dummy.json'
     assert entry.version == '1.0.0'
     assert entry.format == 'custom-format'
-    assert entry.mod_data == {'id': 1, 'name': 'Demo'}
+    assert entry.mod == {'id': 1, 'name': 'Demo'}
 
 
 def test_get_metadata_from_json_non_dict_with_mock(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -89,7 +89,7 @@ def test_get_metadata_from_json_mod_not_dict(monkeypatch: pytest.MonkeyPatch) ->
 
     entry = json_ft.get_metadata_from_json(Path('dummy.json'))
     assert entry is not None
-    assert entry.mod_data is None
+    assert entry.mod is None
 
 
 def test_get_metadata_from_json_loader_returns_none(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -137,6 +137,6 @@ def test_get_metadata_from_json_with_real_files(
     assert entry.filename == filename
     assert entry.version == expected_version
     assert entry.format == expected_format
-    assert entry.mod_data is not None
+    assert entry.mod is not None
     for k, v in expected_mod_checks.items():
-        assert entry.mod_data.get(k) == v
+        assert entry.mod.get(k) == v

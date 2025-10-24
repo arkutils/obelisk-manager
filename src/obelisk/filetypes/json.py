@@ -57,5 +57,5 @@ def get_metadata_from_json(file_path: Path) -> ManifestEntry | None:
         filename=file_path.name,
         version=version,
         format=format,
-        mod_data=mod,
+        mod=mod,
     )
