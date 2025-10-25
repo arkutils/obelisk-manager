@@ -5,7 +5,7 @@ from pathlib import Path  # noqa: TC003 - just plain wrong
 from typing import Annotated
 
 from rich.progress import track
-from typer import Argument, Context, Option, Typer  # noqa: TC002 - just plain wrong
+from typer import Argument, Context, Option, Typer
 
 from obelisk.common_args import DRY_RUN_ARG, QUIET_ARG, VERBOSE_ARG, VERSION_ARG, initialise_app
 
@@ -105,8 +105,8 @@ def live_import(
         console=console,
     ):
         # dest_path = repo / dest / src.name
-        logger.info(f'Import {src} to {(repo / dest / src.name).relative_to(repo)}')
-        logger.warning(f'Import {src} to {(repo / dest / src.name).relative_to(repo)}')
+        logger.info('Import %s to %s', src, (repo / dest / src.name).relative_to(repo))
+        logger.warning('Import %s to %s', src, (repo / dest / src.name).relative_to(repo))
 
     logger.error('This is an error message example.')
 

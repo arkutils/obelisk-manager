@@ -4,7 +4,7 @@ import logging
 from pathlib import Path  # noqa: TC003 - just plain wrong
 from typing import Annotated
 
-from typer import Argument, Context, Typer  # noqa: TC002 - just plain wrong
+from typer import Argument, Context, Typer
 
 from obelisk.common_args import DRY_RUN_ARG, QUIET_ARG, VERBOSE_ARG, VERSION_ARG, initialise_app
 from obelisk.manifest import manifest_match, parse_manifest, write_manifest

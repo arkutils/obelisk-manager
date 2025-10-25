@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 import hashlib
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import obelisk.filetypes.binary as bin_ft
+
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def _expected_hash(data: bytes) -> str:
