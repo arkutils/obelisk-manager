@@ -3,9 +3,8 @@ from __future__ import annotations
 import hashlib
 from typing import TYPE_CHECKING
 
-from tests.mocks.files import patch_path_glob_for_folder
-
 from obelisk.scanner import create_manifest_from_folder
+from tests.mocks.files import patch_path_glob_for_folder
 
 
 if TYPE_CHECKING:

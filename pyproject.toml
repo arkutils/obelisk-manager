@@ -61,7 +61,7 @@ avoid-escape = true
 multiline-quotes = 'double'
 
 [tool.ruff.lint.isort]
-known-local-folder = ["src"]
+known-local-folder = ["tests", "obelisk"]
 order-by-type = true
 length-sort-straight = true
 lines-after-imports = 2
