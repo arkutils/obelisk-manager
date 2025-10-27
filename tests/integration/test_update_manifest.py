@@ -158,3 +158,54 @@ def test_update_manifest_dry_run_changes_exit_two(tmp_path: Path) -> None:
     # Verify manifest file unchanged on disk
     after = manifest.read_text(encoding='utf-8')
     assert after == before
+
+
+def test_update_manifest_deletes_when_no_entries(tmp_path: Path) -> None:
+    # Arrange: create a folder and an initial manifest with entries
+    folder = tmp_path / 'data'
+    folder.mkdir()
+    (folder / 'a.json').write_text('{"version":"1"}', encoding='utf-8')
+
+    res1 = runner.invoke(app, ['update-manifest', str(folder)])
+    assert res1.exit_code == 0, res1.output
+
+    manifest = folder / '_manifest.json'
+    assert manifest.exists()
+
+    # Remove all valid files so the scanner finds no entries
+    (folder / 'a.json').unlink()
+    # Add a few ignored files to ensure scanner returns empty
+    (folder / 'notes.txt').write_text('n/a', encoding='utf-8')
+    (folder / '.hidden.json').write_text('{"version":"x"}', encoding='utf-8')
+
+    # Act
+    res2 = runner.invoke(app, ['update-manifest', str(folder)])
+
+    # Assert: manifest should be deleted
+    assert res2.exit_code == 0, res2.output
+    assert 'Changes detected in the manifest.' in res2.output
+    assert not manifest.exists(), 'Manifest file should be removed when no valid entries remain'
+
+
+def test_update_manifest_dry_run_does_not_delete_on_empty(tmp_path: Path) -> None:
+    # Arrange: create a folder and ensure a manifest exists
+    folder = tmp_path / 'data'
+    folder.mkdir()
+    (folder / 'a.json').write_text('{"version":"1"}', encoding='utf-8')
+
+    res1 = runner.invoke(app, ['update-manifest', str(folder)])
+    assert res1.exit_code == 0, res1.output
+    manifest = folder / '_manifest.json'
+    assert manifest.exists()
+
+    # Remove valid files so the scanner finds no entries
+    (folder / 'a.json').unlink()
+
+    # Act: dry run
+    res2 = runner.invoke(app, ['update-manifest', '--dry-run', str(folder)])
+
+    # Assert: exit code 2 (changes would be made) and manifest still exists
+    assert res2.exit_code == 2, res2.output
+    assert 'Changes detected in the manifest.' in res2.output
+    assert 'would delete existing manifest' in res2.output
+    assert manifest.exists(), 'Manifest should not be deleted in dry-run mode'

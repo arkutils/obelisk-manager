@@ -59,18 +59,36 @@ def update_manifest(
     # Scan the folder and create a fresh manifest
     new_manifest = create_manifest_from_folder(folder_path)
 
-    # Compare and update the manifest as needed
-    if existing_manifest and manifest_match(existing_manifest, new_manifest):
-        print('[bold green]:thumbs_up: No updates necessary to the manifest.[/bold green]')
-    else:
+    # Handle empty manifests: delete existing file or no-op if none exists
+    if not new_manifest:
+        had_manifest = manifest_path.exists()
+        if not had_manifest:
+            print('[bold green]:thumbs_up: No updates necessary to the manifest.[/bold green]')
+            return
+
         print('[bold green]Changes detected in the manifest.[/bold green]')
         if dry_run:
+            print('[bold yellow]No valid entries found; would delete existing manifest.[/bold yellow]')
             print('[bold yellow]:no_entry: Dry run mode - no changes will be written.[/bold yellow]')
-            # Give a return code indicating changes would be made
             ctx.exit(2)
-        else:
-            write_manifest(manifest_path, new_manifest)
-            print(f'[bold green]Manifest updated at {manifest_path}[/bold green]')
+
+        manifest_path.unlink()
+        print(f'[bold green]Manifest removed at {manifest_path} (no entries)[/bold green]')
+        return
+
+    # Compare and update the manifest as needed for non-empty manifests
+    if existing_manifest and manifest_match(existing_manifest, new_manifest):
+        print('[bold green]:thumbs_up: No updates necessary to the manifest.[/bold green]')
+        return
+
+    print('[bold green]Changes detected in the manifest.[/bold green]')
+    if dry_run:
+        print('[bold yellow]:no_entry: Dry run mode - no changes will be written.[/bold yellow]')
+        # Give a return code indicating changes would be made
+        ctx.exit(2)
+
+    write_manifest(manifest_path, new_manifest)
+    print(f'[bold green]Manifest updated at {manifest_path}[/bold green]')
 
 
 __all__ = ('app',)
