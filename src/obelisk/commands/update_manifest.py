@@ -41,8 +41,6 @@ def update_manifest(
     console = initialise_app(ctx)
     print = console.print  # noqa: A001
 
-    print('[bold green]Obelisk Import Utility[/bold green]')
-
     # Identify the folder containing the manifest
     if folder_or_manifest.is_dir():
         manifest_path = folder_or_manifest / '_manifest.json'
@@ -68,6 +66,8 @@ def update_manifest(
         print('[bold green]Changes detected in the manifest.[/bold green]')
         if dry_run:
             print('[bold yellow]:no_entry: Dry run mode - no changes will be written.[/bold yellow]')
+            # Give a return code indicating changes would be made
+            ctx.exit(2)
         else:
             write_manifest(manifest_path, new_manifest)
             print(f'[bold green]Manifest updated at {manifest_path}[/bold green]')
