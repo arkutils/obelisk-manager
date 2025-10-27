@@ -1,14 +1,15 @@
 from __future__ import annotations
 
+import subprocess as _sub
 from typing import TYPE_CHECKING, Any
+
+import pytest
 
 from obelisk import git
 
 
 if TYPE_CHECKING:
     from pathlib import Path
-
-    import pytest
 
 
 class _RunCalls:
@@ -177,3 +178,39 @@ def test_dry_run_does_not_call_subprocess(tmp_path: Path, monkeypatch: pytest.Mo
     git.push(tmp_path, dry_run=True)
 
     assert runner.calls == []
+
+
+def test_fetch_raises_when_git_missing(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    # No git on PATH -> FileNotFoundError
+    monkeypatch.setattr(git.shutil, 'which', lambda _name: None)  # type: ignore
+
+    with pytest.raises(FileNotFoundError):
+        git.fetch(tmp_path, remote='origin')
+
+
+def test_subprocess_errors_propagate(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    def _raise(*_args: object, **_kwargs: object):  # pyright: ignore[reportUnknownParameterType]
+        raise _sub.CalledProcessError(returncode=1, cmd=['git', 'x'])
+
+    # Ensure git path resolves, but run fails
+    monkeypatch.setattr(git.shutil, 'which', lambda _name: 'git')  # type: ignore
+    monkeypatch.setattr(git.subprocess, 'run', _raise)  # pyright: ignore[reportUnknownArgumentType]
+
+    # Each should propagate CalledProcessError
+    with pytest.raises(_sub.CalledProcessError):
+        git.fetch(tmp_path)
+
+    with pytest.raises(_sub.CalledProcessError):
+        git.reset_hard(tmp_path)
+
+    with pytest.raises(_sub.CalledProcessError):
+        git.fast_forward(tmp_path)
+
+    with pytest.raises(_sub.CalledProcessError):
+        git.is_clean(tmp_path)
+
+    with pytest.raises(_sub.CalledProcessError):
+        git.commit_all(tmp_path, message='m')
+
+    with pytest.raises(_sub.CalledProcessError):
+        git.push(tmp_path)
