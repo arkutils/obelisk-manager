@@ -1,3 +1,4 @@
+from operator import attrgetter
 from pathlib import Path
 
 from obelisk.filetypes import MetadataReader
@@ -25,6 +26,9 @@ def create_manifest_from_folder(folder_path: Path) -> list[ManifestEntry]:
         entry = handler(file_path)
         if entry is not None:
             manifest_entries.append(entry)
+
+    # Ensure deterministic ordering for downstream comparison/writes
+    manifest_entries.sort(key=attrgetter('filename'))
 
     return manifest_entries
 
