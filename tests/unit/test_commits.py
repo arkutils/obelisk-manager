@@ -49,7 +49,7 @@ def test_build_commit_message_default_headline_and_list():
 
     # Assert
     lines = msg.splitlines()
-    assert lines[0] == 'Obelisk import: +1 ~1 -0'
+    assert lines[0] == 'Data import: +1 ~1 -0'
     assert lines[1] == ''
     added_line = lines.index('Added:')
     assert lines[added_line + 1] == '* b.json'
@@ -64,8 +64,8 @@ def test_build_commit_message_custom_parts_and_without_list():
     msg = build_commit_message(
         before,
         after,
-        headline='Add new obelisk configs',
-        message='Initial import of configs.',
+        title='Add new obelisk configs',
+        add_body='Initial import of configs.',
         include_file_list=False,
     )
 
@@ -79,8 +79,8 @@ def test_build_commit_message_custom_message_with_list():
     msg = build_commit_message(
         before,
         after,
-        headline='Add new obelisk configs',
-        message='Initial import of configs.',
+        title='Add new obelisk configs',
+        add_body='Initial import of configs.',
         include_file_list=True,
     )
 
@@ -94,3 +94,56 @@ def test_build_commit_message_custom_message_with_list():
     ]
 
     assert msg.splitlines() == expected_lines
+
+
+def test_build_commit_message_title_templating_counts():
+    # Arrange: one added, one updated, one removed
+    before = [
+        make_entry('keep.json', version='1.0'),
+        make_entry('remove.json', version='0.9'),
+    ]
+    after = [
+        make_entry('keep.json', version='1.1'),  # updated
+        make_entry('add.json', version=None),  # added
+    ]
+
+    # Act
+    msg = build_commit_message(
+        before,
+        after,
+        title='Import summary: +$added ~$updated -$removed (total=$total)',
+        include_file_list=False,
+    )
+
+    # Assert
+    assert msg == 'Import summary: +1 ~1 -1 (total=3)'
+
+
+def test_build_commit_message_title_templating_with_custom_fields():
+    before: list[ManifestEntry] = []
+    after = [make_entry('x.json')]
+
+    msg = build_commit_message(
+        before,
+        after,
+        title='Release $tag: $note (+$added)',
+        template_fields={'tag': 'v1.2.3', 'note': 'weekly import'},
+        include_file_list=False,
+    )
+
+    assert msg == 'Release v1.2.3: weekly import (+1)'
+
+
+def test_build_commit_message_templates_add_body():
+    before: list[ManifestEntry] = []
+    after = [make_entry('x.json')]
+
+    msg = build_commit_message(
+        before,
+        after,
+        title='Notice',
+        add_body='Counts: $added $updated $removed $total',
+        include_file_list=False,
+    )
+
+    assert msg == 'Notice\n\nCounts: 1 0 0 1'

@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from string import Template
+from typing import TYPE_CHECKING, Any
 
 from .manifest import ManifestEntry
 
@@ -108,21 +109,23 @@ def build_file_change_list(before: list[ManifestEntry], after: list[ManifestEntr
     return '\n\n'.join('\n'.join(block) for block in sections)
 
 
-def build_commit_message(
+def build_commit_message(  # noqa: PLR0913 - appropriate for the use
     before: list[ManifestEntry],
     after: list[ManifestEntry],
     *,
     include_file_list: bool = True,
-    headline: str | None = None,
-    message: str | None = None,
+    title: str | None = None,
+    add_body: str | None = None,
+    template_fields: dict[str, Any] | None = None,
 ) -> str:
-    """Create a full commit message.
+    """Create a full commit message. Allows template expansion in title and body.
 
     Parameters:
     - before/after: Manifest entries before and after the change.
-    - headline: Optional first line. If absent a concise summary with counts is used.
-    - message: Optional free-form message paragraph appended after the headline.
+    - title: Override automatic title for the commit title line.
+    - add_body: Optional free-form message paragraph appended after the headline.
     - include_file_list: When True, appends a formatted change list.
+    - template_fields: Optional additional fields for title/body templating.
 
     Returns the full commit message string suitable for `git commit -m` usage.
     """
@@ -132,18 +135,27 @@ def build_commit_message(
     upd_n = len(changes.updated)
     rem_n = len(changes.removed)
 
-    if headline is None:
+    template_fields = dict(template_fields or {})  # make a copy
+    template_fields['added'] = add_n
+    template_fields['updated'] = upd_n
+    template_fields['removed'] = rem_n
+    template_fields['total'] = add_n + upd_n + rem_n
+
+    if not title:
         if add_n == upd_n == rem_n == 0:
-            headline_text = 'Obelisk import: no changes'
+            title = 'Data import: no changes'
         else:
-            headline_text = f'Obelisk import: +{add_n} ~{upd_n} -{rem_n}'
+            title = 'Data import: +$added ~$updated -$removed'
     else:
-        headline_text = headline.strip()
+        title = title.strip()
 
-    parts: list[str] = [headline_text]
+    title = Template(title).substitute(template_fields)
 
-    if message:
-        parts.extend(['', message.strip()])
+    parts: list[str] = [title]
+
+    if add_body:
+        body = Template(add_body).substitute(template_fields)
+        parts.extend(['', body.strip()])
 
     if include_file_list:
         change_list = build_file_change_list(before, after)

@@ -63,8 +63,10 @@ VERBOSE_ARG = Annotated[
     Option(
         '-v',
         '--verbose',
-        help='Increase output verbosity. May be specified multiple times..',
+        help='Increase output verbosity. May be specified multiple times.',
+        metavar='',
         count=True,
+        show_default=False,
     ),
 ]
 
@@ -74,7 +76,9 @@ QUIET_ARG = Annotated[
         '-q',
         '--quiet',
         help='Reduce output verbosity. May be specified multiple times.',
+        metavar='',
         count=True,
+        show_default=False,
     ),
 ]
 
