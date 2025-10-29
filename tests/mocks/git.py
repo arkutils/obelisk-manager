@@ -23,6 +23,25 @@ def create_bare_repo(path: Path) -> None:
     run_git(path, 'init', '--bare')
 
 
+def _configure_test_identity(path: Path) -> None:
+    """Configure a temporary test-only identity and disable signing in the repo.
+
+    We set per-repository configuration so it takes precedence over any user/global
+    config the developer or CI might have. This prevents signing prompts and ensures
+    commits can be created without depending on global identity.
+    """
+    # Identity
+    run_git(path, 'config', 'user.name', 'Obelisk Test')
+    run_git(path, 'config', 'user.email', 'obelisk-test@example.invalid')
+    # Disable signing (both commits and tags) explicitly
+    run_git(path, 'config', 'commit.gpgsign', 'false')
+    run_git(path, 'config', 'tag.gpgsign', 'false')
+    # If SSH signing is enabled in newer Git, disable it too
+    run_git(path, 'config', 'gpg.format', 'openpgp')  # keep default but explicit
+    run_git(path, 'config', 'gpg.ssh.allowedSignersFile', '')
+    run_git(path, 'config', 'gpg.ssh.defaultKeyCommand', '')
+
+
 def init_repo_with_commit(
     path: Path,
     files: dict[str, str | bytes] | None = None,
@@ -30,6 +49,7 @@ def init_repo_with_commit(
 ) -> None:
     path.mkdir(parents=True, exist_ok=True)
     run_git(path, 'init')
+    _configure_test_identity(path)
     if files:
         for name, content in files.items():
             p = path / name
@@ -44,6 +64,8 @@ def init_repo_with_commit(
 
 
 def add_remote_and_push(local: Path, remote: Path, remote_name: str = 'origin', branch: str = 'main') -> None:
+    # Ensure identity and signing are configured even if this is called separately
+    _configure_test_identity(local)
     run_git(local, 'remote', 'add', remote_name, str(remote))
     run_git(local, 'push', remote_name, branch, '--set-upstream')
 
