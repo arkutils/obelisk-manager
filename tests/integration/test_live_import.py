@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, TypedDict
 
 from typer.testing import CliRunner
 
-from obelisk.main import app
+from obelisk.__main__ import app
 from obelisk.manifest import parse_manifest
 from tests.mocks.git import run_git
 

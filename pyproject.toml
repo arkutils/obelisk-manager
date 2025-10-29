@@ -18,8 +18,8 @@ dev = [
 ]
 
 [project.scripts]
-obelisk-manager = "obelisk.main:app"
-obelisk = "obelisk.main:app"
+obelisk-manager = "obelisk.__main__:app"
+obelisk = "obelisk.__main__:app"
 
 [tool.uv]
 package = true

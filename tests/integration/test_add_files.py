@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from typer.testing import CliRunner
 
-from obelisk.main import app
+from obelisk.__main__ import app
 from obelisk.manifest import parse_manifest
 
 
