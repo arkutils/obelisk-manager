@@ -5,7 +5,7 @@ from typing import Annotated
 
 from typer import Argument, Context, Typer
 
-from obelisk.common_args import DRY_RUN_ARG, QUIET_ARG, VERBOSE_ARG, VERSION_ARG, initialise_app
+from obelisk.cmd_utils.common_args import DRY_RUN_ARG, QUIET_ARG, VERBOSE_ARG, VERSION_ARG, initialise_app
 
 
 logger = logging.getLogger('obelisk')

@@ -2,6 +2,7 @@ import logging
 
 from typer import Typer
 
+from obelisk.commands.add_files import app as add_files_app
 from obelisk.commands.hello import app as hello_app
 from obelisk.commands.live_import import app as live_import_app
 from obelisk.commands.update_manifest import app as update_manifest_app
@@ -21,6 +22,7 @@ app = Typer(
 
 app.add_typer(update_manifest_app)
 app.add_typer(live_import_app)
+app.add_typer(add_files_app)
 app.add_typer(hello_app)
 
 

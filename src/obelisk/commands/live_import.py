@@ -2,21 +2,20 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from shutil import copy2
 from typing import TYPE_CHECKING, Annotated
 
 from typer import Argument, Context, Option, Typer
 
+from obelisk.cmd_utils.apply_import import apply_import
+from obelisk.cmd_utils.common_args import DRY_RUN_ARG, QUIET_ARG, VERBOSE_ARG, VERSION_ARG, initialise_app
+from obelisk.cmd_utils.input_utils import collect_allowed_inputs
 from obelisk.commits import build_commit_message
-from obelisk.common_args import DRY_RUN_ARG, QUIET_ARG, VERBOSE_ARG, VERSION_ARG, initialise_app
-from obelisk.filtering import file_is_allowed
 from obelisk.git import commit_all, fast_forward, fetch, is_clean, is_git_available, push, reset_hard
-from obelisk.manifest import MANIFEST_FILENAME, ManifestEntry, manifest_match, write_manifest
-from obelisk.scanner import create_manifest_from_folder
+from obelisk.manifest import manifest_match
 
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable
+    from collections.abc import Callable
 
 
 logger = logging.getLogger('obelisk')
@@ -137,7 +136,7 @@ def live_import(
     _preflight_checks(repo, printer=print, ctx=ctx)
 
     # Basic DEST_PATH verification (non-absolute, no parent traversal)
-    dest_path = _validate_dest_path(repo, dest, printer=print, ctx=ctx)
+    dest_path = _validate_relative_dest_path(repo, dest, printer=print, ctx=ctx)
 
     # Effective push flag
     do_push = (not skip_pull) and (not skip_push)
@@ -146,11 +145,10 @@ def live_import(
     _sync_repository(repo, dry_run=dry_run, skip_pull=skip_pull, git_reset=git_reset, printer=print, ctx=ctx)
 
     # Collect and filter inputs
-    print('[bold]Collecting input files...[/bold]')
-    allowed = _collect_allowed_inputs(inputs, allow_all, printer=print, ctx=ctx)
+    allowed = _collect_input_files(inputs, allow_all=allow_all, printer=print, ctx=ctx)
 
     # Ensure destination exists and perform copy + manifest update
-    before_entries, after_entries = _apply_import(dest_path, allowed, dry_run=dry_run, printer=print, ctx=ctx)
+    before_entries, after_entries = apply_import(dest_path, allowed, dry_run=dry_run, printer=print)
 
     # Compute commit message and decide whether to commit
     if manifest_match(before_entries, after_entries):
@@ -181,8 +179,8 @@ def live_import(
     print('[bold green]Live import completed.[/bold green]')
 
 
-def _validate_dest_path(repo: Path, dest: str, printer: Callable[..., None], ctx: Context) -> Path:
-    """Basic destination validation and normalization.
+def _validate_relative_dest_path(repo: Path, dest: str, *, printer: Callable[..., None], ctx: Context) -> Path:
+    """Validate and normalise a relative path within the given repo.
 
     - Rejects absolute paths
     - Rejects parent traversal (..)
@@ -214,16 +212,6 @@ def _validate_dest_path(repo: Path, dest: str, printer: Callable[..., None], ctx
         ctx.exit(1)
 
     return resolved
-
-
-def _enumerate_input_files(inputs: Iterable[Path]) -> list[Path]:
-    files: list[Path] = []
-    for p in inputs:
-        if p.is_file():
-            files.append(p)
-        elif p.is_dir():
-            files.extend([child for child in p.iterdir() if child.is_file()])
-    return files
 
 
 def _preflight_checks(repo: Path, *, printer: Callable[..., None], ctx: Context) -> None:
@@ -275,22 +263,15 @@ def _sync_repository(
         ctx.exit(1)
 
 
-def _collect_allowed_inputs(
-    inputs: Iterable[Path],
-    allow_all: bool,
+def _collect_input_files(
+    inputs: list[Path],
     *,
+    allow_all: bool,
     printer: Callable[..., None],
     ctx: Context,
 ) -> list[Path]:
-    input_files = _enumerate_input_files(inputs)
-    allowed: list[Path] = []
-    filtered: list[Path] = []
-    for p in input_files:
-        if allow_all or file_is_allowed(p):
-            allowed.append(p)
-        else:
-            filtered.append(p)
-
+    printer('[bold]Collecting input files...[/bold]')
+    allowed, filtered = collect_allowed_inputs(inputs, allow_all=allow_all)
     if filtered:
         printer(
             '[red]Error:[/red] Some unhandled files are excluded. '
@@ -300,56 +281,6 @@ def _collect_allowed_inputs(
             printer(f'  - {excluded_file}')
         ctx.exit(1)
     return allowed
-
-
-def _apply_import(
-    dest_path: Path,
-    allowed: list[Path],
-    *,
-    dry_run: bool,
-    printer: Callable[..., None],
-    ctx: Context,
-) -> tuple[list[ManifestEntry], list[ManifestEntry]]:
-    if not dry_run:
-        dest_path.mkdir(parents=True, exist_ok=True)
-
-    # Scan current state (before)
-    printer('[bold]Scanning current manifest (before)...[/bold]')
-    try:
-        before_entries = create_manifest_from_folder(dest_path)
-    except Exception as e:
-        printer(f'[red]Error:[/red] File scan failed: {e}')
-        ctx.exit(1)
-
-    # Copy files
-    printer('[bold]Copying files...[/bold]')
-    for src in allowed:
-        dst = dest_path / src.name
-        if dry_run:
-            printer(f'  * {src} -> {dst} [dry-run]')
-        else:
-            try:
-                copy2(src, dst)
-            except Exception as e:
-                printer(f'[red]Error:[/red] Failed to copy {src} to {dst}: {e}')
-                ctx.exit(1)
-            printer(f'  * {src} -> {dst}')
-
-    # Scan new state (after) and write manifest
-    printer('[bold]Updating manifest...[/bold]')
-    after_entries = create_manifest_from_folder(dest_path)
-    manifest_file = dest_path / MANIFEST_FILENAME
-    if dry_run:
-        printer(f'  * Would write manifest: {manifest_file}')
-    else:
-        try:
-            write_manifest(manifest_file, after_entries)
-        except Exception as e:
-            printer(f'[red]Error:[/red] Failed to write manifest: {e}')
-            ctx.exit(1)
-        printer(f'  * Wrote manifest: {manifest_file}')
-
-    return before_entries, after_entries
 
 
 def _maybe_push(
