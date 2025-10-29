@@ -1,10 +1,10 @@
 # Obelisk Data Manager
 
-A small utility to import/manage Obelisk data files and maintain a the `_manifest.json`.
+A small utility to import/manage Obelisk data files and maintain its `_manifest.json`.
 
-- Can imports files into a manifest-manager folder.
+- Can import files into a manifest-manager folder.
 - Updates `_manifest.json` to catalogue files and their metadata within the folder.
-- Can also work with a live Git repository, handling pulling, committing and pushing.
+- Can also work with a live Git repository; handles pulling, committing and pushing.
 - Generates compact and deterministic manifests for clean repository commits.
 - Understands JSON and common image extensions; skips hidden/underscored names and directories.
 
