@@ -17,3 +17,7 @@ __pycache__/
 # ...but not example env files
 !.env.example
 !.env.*.example
+
+# Test results
+.report_*.xml
+coverage

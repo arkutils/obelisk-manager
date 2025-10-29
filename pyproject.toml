@@ -71,7 +71,7 @@ lines-after-imports = 2
 [tool.ruff.format]
 quote-style = "single"
 skip-magic-trailing-comma = false
-line-ending = "lf"
+line-ending = "auto"
 
 
 #### PyRight

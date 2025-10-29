@@ -28,6 +28,8 @@
 
     "cSpell.diagnosticLevel": "Hint",
     "cSpell.words": [
+        "Pyright",
+        "pytest",
         "serialiser"
     ],
 }

@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Show tool versions
+        run: |
+          uv --version
+          uv run python --version
+
+      - name: Check formatting with Ruff
+        run: uv run ruff format --check --preview --output-format=github
+        continue-on-error: true
+
+      - name: Check linting with Ruff
+        run: uv run ruff check --output-format=github
+        continue-on-error: true
+
+      - name: Check types with PyRight
+        run: uv run pyright
+        continue-on-error: true
+
+      - name: Run unit tests
+        run: uv run pytest --tb=short -v -rA --junit-xml=.report_unit_tests.xml tests/unit
+        continue-on-error: true
+
+      - name: Run integration tests
+        run: uv run pytest --tb=short -v -rA --junit-xml=.report_integration_tests.xml tests/integration
+        continue-on-error: true
+
+      - name: Upload test results
+        uses: test-summary/action@v2.4
+        if: always() # always run regardless of previous errors
+        with:
+          paths: .report_*.xml
+          output: ${{ inputs.output }}
+          show: ${{ inputs.show }}
