@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 def _expected_hash(data: bytes) -> str:
     h = hashlib.md5()  # noqa: S324 - not using for cryptography in any way
     h.update(data)
-    return f'md5:{h.hexdigest()}:{len(data)}:'
+    return f'md5:{h.hexdigest()}:{len(data)}'
 
 
 def test_get_metadata_from_binary_empty_file(tmp_path: Path) -> None:

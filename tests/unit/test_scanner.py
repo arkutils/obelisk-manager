@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 def _expected_hash(data: bytes) -> str:
     h = hashlib.md5()  # noqa: S324 - not for cryptography
     h.update(data)
-    return f'md5:{h.hexdigest()}:{len(data)}:'
+    return f'md5:{h.hexdigest()}:{len(data)}'
 
 
 def test_create_manifest_from_folder_basic_and_skips(tmp_path: Path) -> None:

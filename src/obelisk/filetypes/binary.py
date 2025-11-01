@@ -16,7 +16,7 @@ def get_metadata_from_binary(file_path: Path) -> ManifestEntry | None:
     file_size = file_path.stat().st_size
 
     # Construct the manifest entry
-    hash_str = f'md5:{hasher.hexdigest()}:{file_size}:'
+    hash_str = f'md5:{hasher.hexdigest()}:{file_size}'
     return ManifestEntry(
         filename=file_path.name,
         hash=hash_str,
