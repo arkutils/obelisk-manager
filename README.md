@@ -135,3 +135,7 @@ Run locally:
 ```bash
 uv run obelisk --help
 ```
+
+## License
+
+This software is offered under the MIT license. All contributions will be placed under this license.
