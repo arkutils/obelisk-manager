@@ -17,15 +17,17 @@ Requirements:
 One-off execution - no need to download or install:
 
 ```bash
-uvx @arkutils/obelisk-manager --help
+uvx git+https://github.com/arkutils/obelisk-manager --help
 ```
 
-If you have downloaded/clone this repo:
+> [!NOTE]
+> The Git URL for `uvx` will be replaced by a simple package name in future, but the Git URL will always work.
+
+If you have already downloaded/clone this repo you can run it locally:
 
 ```bash
-uv run obelisk --help
+uv run obelisk-manager --help
 ```
-
 
 ## Quick start
 
@@ -34,25 +36,25 @@ We offer multiple commands that perform different levels of functionality.
 Simply update or create a folder's manifest (non-recursive):
 
 ```bash
-uvx @arkutils/obelisk-manager update-manifest path/to/folder
+uvx git+https://github.com/arkutils/obelisk-manager update-manifest path/to/folder
 # or give the manifest file directly
-uvx @arkutils/obelisk-manager update-manifest path/to/folder/_manifest.json
+uvx git+https://github.com/arkutils/obelisk-manager update-manifest path/to/folder/_manifest.json
 ```
 
 Copy files into a destination folder then update the manifest:
 
 ```bash
-uvx @arkutils/obelisk-manager add-files inputs/*.json path/to/folder
+uvx git+https://github.com/arkutils/obelisk-manager add-files inputs/*.json path/to/folder
 # allow filtered files (hidden/underscored or unrecognised types)
-uvx @arkutils/obelisk-manager add-files --all inputs/ path/to/folder
+uvx git+https://github.com/arkutils/obelisk-manager add-files --all inputs/ path/to/folder
 ```
 
 Import files into a live Git repository, updating its manifest:
 
 ```bash
-uvx @arkutils/obelisk-manager live-import -r /path/to/repo inputs/*.json data/asb/
+uvx git+https://github.com/arkutils/obelisk-manager live-import -r /path/to/repo inputs/*.json data/asb/
 # customise the commit message
-uvx @arkutils/obelisk-manager live-import -r /path/to/repo \
+uvx git+https://github.com/arkutils/obelisk-manager live-import -r /path/to/repo \
     -t "Imported $total changes to $path" \
     -b "Automated import via CI" \
     inputs/ data/
@@ -68,7 +70,7 @@ All commands support common flags: `-v/--verbose` (repeatable), `-q/--quiet` (re
 Create, update or delete `_manifest.json` for an existing directory based on files present there.
 
 ```bash
-uvx @arkutils/obelisk-manager update-manifest <FOLDER|_manifest.json> [--dry-run] [-v|-q]
+uvx git+https://github.com/arkutils/obelisk-manager update-manifest <FOLDER|_manifest.json> [--dry-run] [-v|-q]
 ```
 
 Behavior:
@@ -81,7 +83,7 @@ Behavior:
 Copy files into a destination folder and update its manifest.
 
 ```bash
-uvx @arkutils/obelisk-manager add-files <INPUTS...> <DEST_PATH> [--allow-all|-a] [--dry-run] [-v|-q]
+uvx git+https://github.com/arkutils/obelisk-manager add-files <INPUTS...> <DEST_PATH> [--allow-all|-a] [--dry-run] [-v|-q]
 ```
 
 Behavior:
@@ -93,7 +95,7 @@ Behavior:
 Import into a live Git repository, updating manifest and performing Git actions.
 
 ```bash
-uvx @arkutils/obelisk-manager live-import -r <REPO> <INPUTS...> <DEST_PATH> \
+uvx git+https://github.com/arkutils/obelisk-manager live-import -r <REPO> <INPUTS...> <DEST_PATH> \
     [--git-reset] [--skip-pull] [--skip-push] \
     [--allow-all|-a] [--title <T>] [--body <B>] [--exclude-file-list] \
     [--dry-run] [-v|-q]

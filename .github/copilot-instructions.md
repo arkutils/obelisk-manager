@@ -24,7 +24,7 @@ Purpose: a Typer-based CLI to import/manage Obelisk data files and keep a per-fo
   - `uv run obelisk --help`
   - `uv run obelisk update-manifest <path|_manifest.json> [--dry-run] [-v|-q]`
   - `uv run obelisk live-import -r <repo> <inputs...> <DEST_PATH> [--skip-push] [--dry-run] [-v|-q]`
-- Intended distribution/run is via uvx: `uvx obelisk --help` (enabled by `[tool.uv].package = true`).
+- Intended future distribution/run is from PyPI via uvx: `uvx obelisk-manager --help` (enabled by `[tool.uv].package = true`).
 - Tool configuration is preferred to be in `pyproject.toml`.
 - Tests: pytest + doctest, split into `tests/integration` and `tests/unit`. Run via `uv run pytest`.
 - Lint/formatting: Use Ruff configured in `pyproject.toml`. Check/fix using `uv run ruff check --fix [<filename>]`.
@@ -43,7 +43,7 @@ Purpose: a Typer-based CLI to import/manage Obelisk data files and keep a per-fo
 
 ## Integration notes
 - Git CLI must be available for `live-import` functionality.
-- Packaging: `project.scripts` exposes `obelisk = "obelisk.main:app"`; `[tool.uv].package = true` supports `uvx` installs.
+- Packaging: `project.scripts` exposes `obelisk-manager = "obelisk.main:app"`; `[tool.uv].package = true` supports `uvx` installs.
 
 ## After Editing
 Ensure to run the following after editing files:
