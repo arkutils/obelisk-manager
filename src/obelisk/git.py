@@ -47,6 +47,24 @@ def _run_git(repo_path: Path, args: Iterable[str], *, dry_run: bool = False) -> 
     )
 
 
+def _run_git_capture_output(repo_path: Path, args: Iterable[str], *, dry_run: bool = False) -> str:
+    """Run a git command in the given repository and capture its output."""
+    cmd_str = _format_cmd(args)
+    logger.debug('git: %s', cmd_str)
+
+    if dry_run:
+        return ''
+
+    res = subprocess.run(
+        [_git_executable(), *list(args)],
+        cwd=str(repo_path),
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return res.stdout.strip()
+
+
 def fetch(
     repo_path: Path,
     remote: str = 'origin',
@@ -64,12 +82,24 @@ def fetch(
 
 def reset_hard(
     repo_path: Path,
-    target: str = 'origin/main',
+    target: str | None = None,
     *,
     dry_run: bool = False,
 ) -> None:
     """Hard reset current branch to the target (e.g., origin/main)."""
+    if target is None:
+        # Default to resetting to the remote tracking branch - read it first
+        target = _run_git_capture_output(
+            repo_path,
+            ['for-each-ref', '--format=%(upstream:short)', '$(git symbolic-ref -q HEAD)'],
+            dry_run=dry_run,
+        )
+        if dry_run:
+            target = 'origin/main'  # placeholder during dry-run
+        if not target:
+            raise ValueError('Cannot determine upstream branch for current HEAD')
     _run_git(repo_path, ['reset', '--hard', target], dry_run=dry_run)
+    _run_git(repo_path, ['clean', '-fd'], dry_run=dry_run)
 
 
 def fast_forward(
