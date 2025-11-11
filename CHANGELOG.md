@@ -1,3 +1,7 @@
+## 0.2.1
+
+* Fixes tracking branch reading
+
 ## 0.2.0 - Git reset improvement
 
 * `live-import` improvements:
