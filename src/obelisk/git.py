@@ -82,23 +82,28 @@ def fetch(
 
 def reset_hard(
     repo_path: Path,
-    target: str | None = None,
+    target_branch: str | None = None,
     *,
     dry_run: bool = False,
 ) -> None:
-    """Hard reset current branch to the target (e.g., origin/main)."""
-    if target is None:
+    """Hard reset current branch to the target branch (e.g., origin/main)."""
+    if target_branch is None:
         # Default to resetting to the remote tracking branch - read it first
-        target = _run_git_capture_output(
+        current_ref = _run_git_capture_output(
             repo_path,
-            ['for-each-ref', '--format=%(upstream:short)', '$(git symbolic-ref -q HEAD)'],
+            ['symbolic-ref', '-q', 'HEAD'],
             dry_run=dry_run,
-        )
+        ).strip()
+        target_branch = _run_git_capture_output(
+            repo_path,
+            ['for-each-ref', '--format=%(upstream:short)', 'refs/heads/master' if dry_run else current_ref],
+            dry_run=dry_run,
+        ).strip()
         if dry_run:
-            target = 'origin/main'  # placeholder during dry-run
-        if not target:
+            target_branch = 'origin/main'  # placeholder during dry-run
+        if not target_branch:
             raise ValueError('Cannot determine upstream branch for current HEAD')
-    _run_git(repo_path, ['reset', '--hard', target], dry_run=dry_run)
+    _run_git(repo_path, ['reset', '--hard', target_branch], dry_run=dry_run)
     _run_git(repo_path, ['clean', '-fd'], dry_run=dry_run)
 
 

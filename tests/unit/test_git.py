@@ -79,7 +79,7 @@ def test_reset_hard_calls_git(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -
     monkeypatch.setattr(git.shutil, 'which', lambda _name: 'git')  ## type: ignore
     monkeypatch.setattr(git.subprocess, 'run', runner)
 
-    git.reset_hard(tmp_path, target='origin/dev')
+    git.reset_hard(tmp_path, target_branch='origin/dev')
 
     assert runner.calls[0]['args'] == ['git', 'reset', '--hard', 'origin/dev']
 
@@ -172,7 +172,7 @@ def test_dry_run_does_not_call_subprocess(tmp_path: Path, monkeypatch: pytest.Mo
     monkeypatch.setattr(git.subprocess, 'run', runner)
 
     git.fetch(tmp_path, remote='origin', dry_run=True)
-    git.reset_hard(tmp_path, target='origin/main', dry_run=True)
+    git.reset_hard(tmp_path, target_branch='origin/main', dry_run=True)
     git.fast_forward(tmp_path, dry_run=True)
     git.commit_all(tmp_path, message='m', dry_run=True)
     git.push(tmp_path, dry_run=True)
