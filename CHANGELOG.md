@@ -1,3 +1,7 @@
+## 0.3.0
+
+* Add `metadata` field capture for JSON
+
 ## 0.2.1
 
 * Fixes tracking branch reading
