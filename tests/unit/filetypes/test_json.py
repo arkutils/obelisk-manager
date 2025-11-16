@@ -35,6 +35,21 @@ def test_get_metadata_from_json_valid_with_mock(monkeypatch: pytest.MonkeyPatch)
     assert entry.mod == {'id': 1, 'name': 'Demo'}
 
 
+def test_get_metadata_from_json_with_metadata(monkeypatch: pytest.MonkeyPatch) -> None:
+    def fake_load(_: Path) -> dict[str, Any]:
+        return {
+            'version': '3.0',
+            'metadata': {'source': 'tests', 'tags': ['beta', 'json']},
+        }
+
+    monkeypatch.setattr(json_ft, '_load_json', fake_load)
+
+    entry = json_ft.get_metadata_from_json(Path('dummy.json'))
+
+    assert entry is not None
+    assert entry.metadata == {'source': 'tests', 'tags': ['beta', 'json']}
+
+
 def test_get_metadata_from_json_non_dict_with_mock(monkeypatch: pytest.MonkeyPatch) -> None:
     # Arrange: loader returns a non-dict (invalid)
     def fake_load(_: Path) -> list[int]:

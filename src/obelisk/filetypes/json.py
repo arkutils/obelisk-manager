@@ -46,6 +46,7 @@ def get_metadata_from_json(file_path: Path) -> ManifestEntry | None:
     # Extract the relevant fields from the JSON data
     version = _only_string(data_dict.get('version'))
     format = _only_string(data_dict.get('format'))  # noqa: A001
+    metadata = _only_dict(data_dict.get('metadata'))
     mod = _only_dict(data_dict.get('mod'))
 
     if not version:
@@ -57,5 +58,6 @@ def get_metadata_from_json(file_path: Path) -> ManifestEntry | None:
         filename=file_path.name,
         version=version,
         format=format,
+        metadata=metadata,
         mod=mod,
     )

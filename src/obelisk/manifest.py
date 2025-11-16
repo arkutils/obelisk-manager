@@ -27,6 +27,7 @@ class RawManifestEntry(BaseModel):
     hash: str | None = None
     format: str | None = None
     mod: dict[str, Any] | None = None
+    metadata: dict[str, Any] | None = None
 
 
 class ManifestEntry(BaseModel):
@@ -35,6 +36,7 @@ class ManifestEntry(BaseModel):
     hash: str | None = None
     format: str | None = None
     mod: dict[str, Any] | None = None
+    metadata: dict[str, Any] | None = None
 
 
 def parse_manifest(path: Path) -> list[ManifestEntry]:
@@ -90,6 +92,7 @@ def write_manifest(path: Path, entries: list[ManifestEntry]) -> None:
             version=entry.version,
             hash=entry.hash,
             mod=entry.mod,
+            metadata=entry.metadata,
         )
         if entry.format != global_format:
             raw_entry.format = entry.format
