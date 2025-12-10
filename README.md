@@ -138,6 +138,17 @@ Run locally:
 uv run obelisk --help
 ```
 
+## Release Process
+
+1. Run above checks
+2. Ensure everything is committed
+3. `uv version --bump [major|minor|patch]`
+4. Update CHANGELOG.md with a section for the new version
+5. Commit using title `Release <version>` (no `v`)
+6. Create a new annotated tag: `git tag -a v<version`>
+7. Push changes and new tag: `git push --follow-tags`
+8. Create release in GitHub from the tag
+
 ## License
 
 This software is offered under the MIT license. All contributions will be placed under this license.
