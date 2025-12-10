@@ -28,6 +28,7 @@
 
     "cSpell.diagnosticLevel": "Hint",
     "cSpell.words": [
+        "arkutils",
         "Pyright",
         "pytest",
         "serialiser"
