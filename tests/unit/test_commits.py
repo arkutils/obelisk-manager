@@ -57,6 +57,63 @@ def test_build_commit_message_default_headline_and_list():
     assert lines[updated_line + 1] == '* a.json (v1.1)'
 
 
+def test_build_file_change_list_sections_natural_sort_order():
+    # Added, Updated, Removed should each be naturally sorted (e.g., 2 before 10)
+    before = [
+        make_entry('remove10.json', version='0.1'),
+        make_entry('file10.json', version='1.0'),
+        make_entry('remove2.json', version='0.1'),
+        make_entry('file2.json', version='1.0'),
+    ]
+    after = [
+        make_entry('add10.json'),
+        make_entry('file10.json', version='1.1'),
+        make_entry('add2.json'),
+        make_entry('file2.json', version='1.1'),
+    ]
+
+    lines = build_file_change_list(before, after).splitlines()
+
+    expected_lines = [
+        'Added:',
+        '* add2.json',
+        '* add10.json',
+        '',
+        'Updated:',
+        '* file2.json (v1.1)',
+        '* file10.json (v1.1)',
+        '',
+        'Removed:',
+        '* remove2.json',
+        '* remove10.json',
+    ]
+
+    assert lines == expected_lines
+
+
+def test_build_file_change_list_sections_natural_sort_order2():
+    # Added, Updated, Removed should each be naturally sorted (e.g., 2 before 10)
+    before: list[ManifestEntry] = []
+    after = [
+        make_entry('100-abc.json'),
+        make_entry('99-def.json'),
+        make_entry('001-ghi.json'),
+        make_entry('000-jkl.json'),
+    ]
+
+    lines = build_file_change_list(before, after).splitlines()
+
+    expected_lines = [
+        'Added:',
+        '* 000-jkl.json',
+        '* 001-ghi.json',
+        '* 99-def.json',
+        '* 100-abc.json',
+    ]
+
+    assert lines == expected_lines
+
+
 def test_build_commit_message_custom_parts_and_without_list():
     before: list[ManifestEntry] = []
     after = [make_entry('x.json', version='2.0')]

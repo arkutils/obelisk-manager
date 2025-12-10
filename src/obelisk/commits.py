@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from string import Template
 from typing import TYPE_CHECKING, Any
 
+from natsort import natsorted, ns
+
 from .manifest import ManifestEntry
 
 
@@ -66,45 +68,33 @@ def build_file_change_list(before: list[ManifestEntry], after: list[ManifestEntr
     and Removed files (only sections with entries are included). Version numbers
     are shown when available.
 
-    Input lists are assumed to already be sorted for deterministic output.
-
-    Examples of line formats:
-    - Added:  filename.ext (v1.2)
-    - Updated: filename.ext (v1.3)
-    - Updated: filename.ext
-    - Removed: filename.ext
+    Output will be sorted by filename order using natural language sorting.
     """
     changes = _diff_entries(before, after)
 
     sections: list[list[str]] = []
 
     if changes.added:
-        added_block: list[str] = ['Added:']
-        added_block.extend(
-            [
-                f'* {e.filename} ({_fmt_version(e.version)})' if e.version else f'* {e.filename}'
-                for e in changes.added
-            ],
-        )
-        sections.append(added_block)
+        added_lines = [
+            f'* {e.filename} ({_fmt_version(e.version)})' if e.version else f'* {e.filename}'
+            for e in changes.added
+        ]
+        sections.append(['Added:', *natsorted(added_lines, alg=ns.IGNORECASE)])
 
     if changes.updated:
-        updated_block: list[str] = ['Updated:']
+        updated_lines: list[str] = []
         for b, a in changes.updated:
             b_ver, a_ver = b.version, a.version
             if b_ver != a_ver:
-                updated_block.append(f'* {a.filename} ({_fmt_version(a_ver)})')
+                updated_lines.append(f'* {a.filename} ({_fmt_version(a_ver)})')
             else:
                 # Either both None or equal versions; something else changed (hash, mod, format)
-                updated_block.append(f'* {a.filename}')
-        sections.append(updated_block)
+                updated_lines.append(f'* {a.filename}')
+        sections.append(['Updated:', *natsorted(updated_lines, alg=ns.IGNORECASE)])
 
     if changes.removed:
-        removed_block: list[str] = ['Removed:']
-        removed_block.extend(
-            [f'* {e.filename}' for e in changes.removed],
-        )
-        sections.append(removed_block)
+        removed_lines = [f'* {e.filename}' for e in changes.removed]
+        sections.append(['Removed:', *natsorted(removed_lines, alg=ns.IGNORECASE)])
 
     return '\n\n'.join('\n'.join(block) for block in sections)
 
