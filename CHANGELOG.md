@@ -1,3 +1,8 @@
+## 0.4.0
+
+* Improve commit message sorting by using natural sort
+* Add top-level --version option
+
 ## 0.3.0
 
 * Add `metadata` field capture for JSON
@@ -13,4 +18,3 @@
   * `--git-reset` also removes untracked files with `git clean -fd`
 
 ## 0.1.0 - First public release
-
