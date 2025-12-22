@@ -72,7 +72,8 @@ def get_metadata_from_json(file_path: Path) -> ManifestEntry | None:
     return ManifestEntry(
         filename=file_path.name,
         version=version,
-        hash=_hash_json_content(data_dict),
+        hash=None,
+        json_hash=_hash_json_content(data_dict),
         format=format,
         metadata=metadata,
         mod=mod,

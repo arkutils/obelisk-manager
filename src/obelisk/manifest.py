@@ -34,6 +34,7 @@ class ManifestEntry(BaseModel):
     filename: str
     version: str | None = None
     hash: str | None = None
+    json_hash: str | None = None
     format: str | None = None
     mod: dict[str, Any] | None = None
     metadata: dict[str, Any] | None = None
@@ -123,9 +124,14 @@ def entries_match(a: ManifestEntry, b: ManifestEntry) -> bool:
     version do not trigger changes. All other fields must match.
     """
 
+    json_hash_matches = True
+    if a.json_hash is not None and b.json_hash is not None:
+        json_hash_matches = a.json_hash == b.json_hash
+
     return (
         a.filename == b.filename
         and a.hash == b.hash
+        and json_hash_matches
         and a.format == b.format
         and a.mod == b.mod
         and a.metadata == b.metadata
