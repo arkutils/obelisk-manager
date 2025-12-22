@@ -113,12 +113,29 @@ def manifest_match(a: list[ManifestEntry], b: list[ManifestEntry]) -> bool:
     if len(a) != len(b):
         return False
 
-    return all(entry_a == entry_b for entry_a, entry_b in zip(a, b, strict=True))
+    return all(entries_match(entry_a, entry_b) for entry_a, entry_b in zip(a, b, strict=True))
+
+
+def entries_match(a: ManifestEntry, b: ManifestEntry) -> bool:
+    """Determine if two manifest entries should be treated as equivalent.
+
+    Version-only differences are ignored so JSON files that only bump their
+    version do not trigger changes. All other fields must match.
+    """
+
+    return (
+        a.filename == b.filename
+        and a.hash == b.hash
+        and a.format == b.format
+        and a.mod == b.mod
+        and a.metadata == b.metadata
+    )
 
 
 __all__ = (
     'MANIFEST_FILENAME',
     'ManifestEntry',
+    'entries_match',
     'manifest_match',
     'parse_manifest',
     'write_manifest',

@@ -3,7 +3,8 @@ from __future__ import annotations
 from shutil import copy2
 from typing import TYPE_CHECKING
 
-from obelisk.manifest import MANIFEST_FILENAME, ManifestEntry, write_manifest
+from obelisk.filetypes import registered_types, version_only_change_insensitive_types
+from obelisk.manifest import MANIFEST_FILENAME, ManifestEntry, entries_match, write_manifest
 from obelisk.scanner import create_manifest_from_folder
 
 
@@ -35,11 +36,23 @@ def apply_import(
     # Scan current state (before)
     p('[bold]Scanning current manifest (before)...[/bold]')
     before_entries = create_manifest_from_folder(dest_path)
+    before_by_name = {entry.filename: entry for entry in before_entries}
 
     # Copy files
     p('[bold]Copying files...[/bold]')
     for src in allowed:
         dst = dest_path / src.name
+
+        # Skip copying JSON inputs when only the version changed to avoid dirty trees
+        ext = src.suffix.lstrip('.').lower()
+        existing_entry = before_by_name.get(src.name)
+        if ext in version_only_change_insensitive_types and existing_entry is not None:
+            handler = registered_types.get(ext)
+            prospective_entry = handler(src) if handler else None
+            if prospective_entry and entries_match(existing_entry, prospective_entry):
+                p(f'  * {src} unchanged (ignoring version); skipping copy')
+                continue
+
         if dry_run:
             p(f'  * {src} -> {dst} [dry-run]')
         else:

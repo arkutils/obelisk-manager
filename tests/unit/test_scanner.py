@@ -71,13 +71,16 @@ def test_create_manifest_from_folder_basic_and_skips(tmp_path: Path) -> None:
     assert vis.version == '1.0.0'
     assert vis.format == 'fmt'
     assert vis.mod == {'id': 123}
-    assert vis.hash is None
+    assert vis.hash is not None
+    assert vis.hash.startswith('md5json:')
 
     # data.jsonc details
     js = by_name['data.jsonc']
     assert js.version == '2.0'
     assert js.format == 'x'
     assert js.mod is None
+    assert js.hash is not None
+    assert js.hash.startswith('md5json:')
 
     # image.png hash
     img = by_name['image.png']
