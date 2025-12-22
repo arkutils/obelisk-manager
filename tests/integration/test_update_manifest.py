@@ -52,7 +52,7 @@ def test_update_manifest_updates_single_file(tmp_path: Path) -> None:
 
     a = folder / 'a.json'
     b = folder / 'b.json'
-    a.write_text('{"version":"1"}', encoding='utf-8')
+    a.write_text('{"version":"1","metadata":{"foo":"bar"}}', encoding='utf-8')
     b.write_text('{"version":"2"}', encoding='utf-8')
 
     # Initial manifest
@@ -61,10 +61,11 @@ def test_update_manifest_updates_single_file(tmp_path: Path) -> None:
     before_entries = parse_manifest(folder / '_manifest.json')
     before_by_name = {e.filename: e for e in before_entries}
     assert before_by_name['a.json'].version == '1'
+    assert before_by_name['a.json'].metadata == {'foo': 'bar'}
     assert before_by_name['b.json'].version == '2'
 
-    # Mutate a single file
-    a.write_text('{"version":"1.1"}', encoding='utf-8')
+    # Mutate metadata only
+    a.write_text('{"version":"1","metadata":{"foo":"baz"}}', encoding='utf-8')
 
     # Act
     res2 = runner.invoke(app, ['update-manifest', str(folder)])
@@ -76,8 +77,37 @@ def test_update_manifest_updates_single_file(tmp_path: Path) -> None:
     after_entries = parse_manifest(folder / '_manifest.json')
     after_by_name = {e.filename: e for e in after_entries}
     assert len(after_entries) == 2
-    assert after_by_name['a.json'].version == '1.1'
+    assert after_by_name['a.json'].version == '1'
+    assert after_by_name['a.json'].metadata == {'foo': 'baz'}
     assert after_by_name['b.json'].version == '2'  # unchanged
+
+
+def test_update_manifest_skips_version_only_change(tmp_path: Path) -> None:
+    # Arrange: create manifest with two files
+    folder = tmp_path / 'data'
+    folder.mkdir()
+
+    a = folder / 'a.json'
+    b = folder / 'b.json'
+    a.write_text('{"version":"1","metadata":{"foo":"bar"}}', encoding='utf-8')
+    b.write_text('{"version":"2"}', encoding='utf-8')
+
+    res1 = runner.invoke(app, ['update-manifest', str(folder)])
+    assert res1.exit_code == 0, res1.output
+    manifest = folder / '_manifest.json'
+    before = manifest.read_text(encoding='utf-8')
+
+    # Mutate version only
+    a.write_text('{"version":"1.1","metadata":{"foo":"bar"}}', encoding='utf-8')
+
+    # Act
+    res2 = runner.invoke(app, ['update-manifest', str(folder)])
+
+    # Assert: treated as unchanged
+    assert res2.exit_code == 0, res2.output
+    assert 'No updates necessary to the manifest.' in res2.output
+    after = manifest.read_text(encoding='utf-8')
+    assert after == before
 
 
 def test_update_manifest_creates_json_and_binary(tmp_path: Path) -> None:
@@ -136,7 +166,7 @@ def test_update_manifest_dry_run_changes_exit_two(tmp_path: Path) -> None:
     folder.mkdir()
     a = folder / 'a.json'
     b = folder / 'b.json'
-    a.write_text('{"version":"1"}', encoding='utf-8')
+    a.write_text('{"version":"1","metadata":{"foo":"bar"}}', encoding='utf-8')
     b.write_text('{"version":"2"}', encoding='utf-8')
 
     res1 = runner.invoke(app, ['update-manifest', str(folder)])
@@ -144,8 +174,8 @@ def test_update_manifest_dry_run_changes_exit_two(tmp_path: Path) -> None:
     manifest = folder / '_manifest.json'
     before = manifest.read_text(encoding='utf-8')
 
-    # Mutate one file to trigger change
-    a.write_text('{"version":"1.1"}', encoding='utf-8')
+    # Mutate metadata to trigger change
+    a.write_text('{"version":"1","metadata":{"foo":"baz"}}', encoding='utf-8')
 
     # Act: dry-run; should detect change and exit code 2
     res2 = runner.invoke(app, ['update-manifest', '--dry-run', str(folder)])
