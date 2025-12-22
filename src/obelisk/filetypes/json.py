@@ -1,4 +1,5 @@
 import json
+import hashlib
 import logging
 from pathlib import Path
 from typing import Any, cast
@@ -30,6 +31,20 @@ def _load_json(file_path: Path) -> Any | None:
             return None
 
 
+def _hash_json_content(data: dict[str, Any]) -> str:
+    """Hash JSON content excluding version so version-only bumps are ignored.
+
+    Uses a stable, sorted, compact JSON representation to ensure formatting-only
+    changes do not alter the hash.
+    """
+
+    # Exclude top-level version from the hash to allow version-only tolerance
+    filtered = {k: v for k, v in data.items() if k != 'version'}
+    normalized = json.dumps(filtered, separators=(',', ':'), ensure_ascii=False)
+    digest = hashlib.md5(normalized.encode('utf-8')).hexdigest()  # noqa: S324 - not for security
+    return f'md5json:{digest}:{len(normalized)}'
+
+
 def get_metadata_from_json(file_path: Path) -> ManifestEntry | None:
     # Load the JSON and extract specific fields for the manifest
     data = _load_json(file_path)
@@ -57,6 +72,7 @@ def get_metadata_from_json(file_path: Path) -> ManifestEntry | None:
     return ManifestEntry(
         filename=file_path.name,
         version=version,
+        hash=_hash_json_content(data_dict),
         format=format,
         metadata=metadata,
         mod=mod,

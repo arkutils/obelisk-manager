@@ -110,6 +110,35 @@ def test_update_manifest_skips_version_only_change(tmp_path: Path) -> None:
     assert after == before
 
 
+def test_update_manifest_detects_non_version_content_change(tmp_path: Path) -> None:
+    # Arrange: create manifest with a JSON file that has extra content
+    folder = tmp_path / 'data'
+    folder.mkdir()
+
+    a = folder / 'a.json'
+    a.write_text('{"version":"1","metadata":{"foo":"bar"},"payload":{"a":1}}', encoding='utf-8')
+
+    res1 = runner.invoke(app, ['update-manifest', str(folder)])
+    assert res1.exit_code == 0, res1.output
+    manifest = folder / '_manifest.json'
+    before_entries = parse_manifest(manifest)
+    before_hash = {e.filename: e.hash for e in before_entries}
+
+    # Mutate non-version content only
+    a.write_text('{"version":"1","metadata":{"foo":"bar"},"payload":{"a":2}}', encoding='utf-8')
+
+    # Act
+    res2 = runner.invoke(app, ['update-manifest', str(folder)])
+
+    # Assert: change detected due to payload diff
+    assert res2.exit_code == 0, res2.output
+    assert 'Changes detected in the manifest.' in res2.output
+
+    after_entries = parse_manifest(manifest)
+    after_hash = {e.filename: e.hash for e in after_entries}
+    assert before_hash['a.json'] != after_hash['a.json']
+
+
 def test_update_manifest_creates_json_and_binary(tmp_path: Path) -> None:
     # Arrange
     folder = tmp_path / 'data'
