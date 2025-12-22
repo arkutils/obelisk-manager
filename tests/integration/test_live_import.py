@@ -243,7 +243,7 @@ def test_live_import_version_only_change_skips_commit_and_copy(
     json_input, png_input = _write_inputs(tmp_path / 'inputs_version')
 
     res1 = runner.invoke(
-        app, ['live-import', '--repo', str(local), str(json_input), str(png_input), 'data/stable-version']
+        app, ['live-import', '--repo', str(local), str(json_input), str(png_input), 'data/stable-version'],
     )
     assert res1.exit_code == 0, res1.output
 

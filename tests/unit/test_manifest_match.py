@@ -67,7 +67,7 @@ def test_manifest_match_mismatches_minor_changes() -> None:
     # Metadata change should still be a mismatch
     metadata_changed = [
         ManifestEntry(
-            filename='a.json', version='1', format=None, mod={'id': 'm1'}, metadata={'k': 'v'}, hash=None
+            filename='a.json', version='1', format=None, mod={'id': 'm1'}, metadata={'k': 'v'}, hash=None,
         ),
         ManifestEntry(filename='b.json', version='2', format='x', mod=None, hash=None),
     ]
