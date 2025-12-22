@@ -33,8 +33,9 @@ def test_get_metadata_from_json_valid_with_mock(monkeypatch: pytest.MonkeyPatch)
     assert entry.version == '1.0.0'
     assert entry.format == 'custom-format'
     assert entry.mod == {'id': 1, 'name': 'Demo'}
-    assert entry.hash is not None
-    assert entry.hash.startswith('md5json:')
+    assert entry.hash is None
+    assert entry.json_hash is not None
+    assert entry.json_hash.startswith('md5json:')
 
 
 def test_get_metadata_from_json_with_metadata(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -50,7 +51,8 @@ def test_get_metadata_from_json_with_metadata(monkeypatch: pytest.MonkeyPatch) -
 
     assert entry is not None
     assert entry.metadata == {'source': 'tests', 'tags': ['beta', 'json']}
-    assert entry.hash is not None
+    assert entry.hash is None
+    assert entry.json_hash is not None
 
 
 def test_get_metadata_from_json_non_dict_with_mock(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -96,7 +98,8 @@ def test_get_metadata_from_json_format_not_string(monkeypatch: pytest.MonkeyPatc
     entry = json_ft.get_metadata_from_json(Path('dummy.json'))
     assert entry is not None
     assert entry.format is None
-    assert entry.hash is not None
+    assert entry.hash is None
+    assert entry.json_hash is not None
 
 
 def test_get_metadata_from_json_mod_not_dict(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -109,7 +112,8 @@ def test_get_metadata_from_json_mod_not_dict(monkeypatch: pytest.MonkeyPatch) ->
     entry = json_ft.get_metadata_from_json(Path('dummy.json'))
     assert entry is not None
     assert entry.mod is None
-    assert entry.hash is not None
+    assert entry.hash is None
+    assert entry.json_hash is not None
 
 
 def test_get_metadata_from_json_loader_returns_none(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -160,8 +164,9 @@ def test_get_metadata_from_json_with_real_files(
     assert entry.mod is not None
     for k, v in expected_mod_checks.items():
         assert entry.mod.get(k) == v
-    assert entry.hash is not None
-    assert entry.hash.startswith('md5json:')
+    assert entry.hash is None
+    assert entry.json_hash is not None
+    assert entry.json_hash.startswith('md5json:')
 
 
 def test_get_metadata_from_json_hash_changes_with_content(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -180,7 +185,7 @@ def test_get_metadata_from_json_hash_changes_with_content(monkeypatch: pytest.Mo
     assert entry1 is not None
     assert entry2 is not None
     # Hash should change because content (data) changed, even if version bumps too
-    assert entry1.hash != entry2.hash
+    assert entry1.json_hash != entry2.json_hash
 
 
 def test_get_metadata_from_json_hash_changes_with_key_order(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -199,4 +204,4 @@ def test_get_metadata_from_json_hash_changes_with_key_order(monkeypatch: pytest.
 
     assert entry1 is not None
     assert entry2 is not None
-    assert entry1.hash != entry2.hash
+    assert entry1.json_hash != entry2.json_hash
