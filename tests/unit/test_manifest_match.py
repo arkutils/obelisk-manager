@@ -46,8 +46,8 @@ def test_manifest_match_mismatches_minor_changes() -> None:
         ManifestEntry(filename='a.json', version='1', format=None, mod={'id': 'm1'}, hash=None),
         ManifestEntry(filename='b.json', version='3', format='x', mod=None, hash=None),
     ]
-    assert manifest_match(base, changed_version) is True
-    assert manifest_match(changed_version, base) is True
+    assert manifest_match(base, changed_version) is False
+    assert manifest_match(changed_version, base) is False
 
     # Missing file
     missing = [
@@ -63,16 +63,6 @@ def test_manifest_match_mismatches_minor_changes() -> None:
     ]
     assert manifest_match(base, mod_changed) is False
     assert manifest_match(mod_changed, base) is False
-
-    # Metadata change should still be a mismatch
-    metadata_changed = [
-        ManifestEntry(
-            filename='a.json', version='1', format=None, mod={'id': 'm1'}, metadata={'k': 'v'}, hash=None
-        ),
-        ManifestEntry(filename='b.json', version='2', format='x', mod=None, hash=None),
-    ]
-    assert manifest_match(base, metadata_changed) is False
-    assert manifest_match(metadata_changed, base) is False
 
 
 def test_manifest_match_added_entry_mismatch() -> None:

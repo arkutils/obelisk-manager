@@ -18,10 +18,8 @@ registered_types: dict[str, MetadataReader] = {
 }
 
 allowed_types = set(registered_types.keys())
-version_only_change_insensitive_types = {'json', 'jsonc'}
 
 __all__ = (
     'allowed_types',
     'registered_types',
-    'version_only_change_insensitive_types',
 )
