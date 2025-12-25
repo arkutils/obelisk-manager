@@ -1,3 +1,7 @@
+## 0.5.0
+
+* JSON files with changes only to the `version` field are no longer counted as changed
+
 ## 0.4.0
 
 * Improve commit message sorting by using natural sort
