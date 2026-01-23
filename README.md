@@ -70,7 +70,7 @@ All commands support common flags: `-v/--verbose` (repeatable), `-q/--quiet` (re
 Create, update or delete `_manifest.json` for an existing directory based on files present there.
 
 ```bash
-uvx git+https://github.com/arkutils/obelisk-manager update-manifest <FOLDER|_manifest.json> [--dry-run] [-v|-q]
+uvx git+https://github.com/arkutils/obelisk-manager update-manifest <FOLDER|_manifest.json> [--dry-run] [-v|-q] [--accept-identical-versions]
 ```
 
 Behavior:
@@ -78,12 +78,13 @@ Behavior:
 - If there are no valid entries, the existing manifest is deleted; otherwise it is updated.
 - A new manifest will be created from scratch if there was none before.
 - With `--dry-run`, no files are modified; exit code 2 indicates changes would be made.
+- By default version-only changes are ignored (no content change). With `--accept-identical-version` changes that only update the version number will be accepted.
 
 ### add-files
 Copy files into a destination folder and update its manifest.
 
 ```bash
-uvx git+https://github.com/arkutils/obelisk-manager add-files <INPUTS...> <DEST_PATH> [--allow-all|-a] [--dry-run] [-v|-q]
+uvx git+https://github.com/arkutils/obelisk-manager add-files <INPUTS...> <DEST_PATH> [--accept-identical-versions] [--allow-all|-a] [--dry-run] [-v|-q]
 ```
 
 Behavior:
@@ -96,7 +97,7 @@ Import into a live Git repository, updating manifest and performing Git actions.
 
 ```bash
 uvx git+https://github.com/arkutils/obelisk-manager live-import -r <REPO> <INPUTS...> <DEST_PATH> \
-    [--git-reset] [--skip-pull] [--skip-push] \
+    [--accept-identical-versions] [--git-reset] [--skip-pull] [--skip-push] \
     [--allow-all|-a] [--title <T>] [--body <B>] [--exclude-file-list] \
     [--dry-run] [-v|-q]
 ```

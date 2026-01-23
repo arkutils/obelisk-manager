@@ -106,32 +106,48 @@ def write_manifest(path: Path, entries: list[ManifestEntry]) -> None:
     save_as_json(path, data)
 
 
-def manifest_match(a: list[ManifestEntry], b: list[ManifestEntry]) -> bool:
+def manifest_match(
+    a: list[ManifestEntry],
+    b: list[ManifestEntry],
+    *,
+    accept_identical_versions: bool = False,
+) -> bool:
     """
-    Check if two manifests match exactly.
+    Check if two manifests match.
     Both lists are assumed to be sorted by filename (as produced by parse_manifest).
+
+    If `accept_identical_versions` is True, differing `version` values are
+    considered a mismatch. By default (False) version-only changes are ignored.
     """
     if len(a) != len(b):
         return False
 
-    return all(entries_match(entry_a, entry_b) for entry_a, entry_b in zip(a, b, strict=True))
+    return all(
+        entries_match(entry_a, entry_b, accept_identical_versions=accept_identical_versions)
+        for entry_a, entry_b in zip(a, b, strict=True)
+    )
 
 
-def entries_match(a: ManifestEntry, b: ManifestEntry) -> bool:
+def entries_match(a: ManifestEntry, b: ManifestEntry, *, accept_identical_versions: bool = False) -> bool:
     """Determine if two manifest entries should be treated as equivalent.
 
-    Version-only differences are ignored so JSON files that only bump their
-    version do not trigger changes. All other fields must match.
+    By default, version-only differences are ignored so JSON files that only
+    bump their version do not trigger changes. If `accept_identical_versions`
+    is True, then differing `version` values cause entries to be treated as
+    different.
     """
 
     json_hash_matches = True
     if a.json_hash is not None and b.json_hash is not None:
         json_hash_matches = a.json_hash == b.json_hash
 
+    versions_match = a.version == b.version if accept_identical_versions else True
+
     return (
         a.filename == b.filename
         and a.hash == b.hash
         and json_hash_matches
+        and versions_match
         and a.format == b.format
         and a.mod == b.mod
         and a.metadata == b.metadata

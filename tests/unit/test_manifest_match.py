@@ -67,7 +67,12 @@ def test_manifest_match_mismatches_minor_changes() -> None:
     # Metadata change should still be a mismatch
     metadata_changed = [
         ManifestEntry(
-            filename='a.json', version='1', format=None, mod={'id': 'm1'}, metadata={'k': 'v'}, hash=None,
+            filename='a.json',
+            version='1',
+            format=None,
+            mod={'id': 'm1'},
+            metadata={'k': 'v'},
+            hash=None,
         ),
         ManifestEntry(filename='b.json', version='2', format='x', mod=None, hash=None),
     ]
@@ -90,3 +95,22 @@ def test_manifest_match_added_entry_mismatch() -> None:
 
     assert manifest_match(base, added) is False
     assert manifest_match(added, base) is False
+
+
+def test_manifest_match_considers_version_when_flag_set() -> None:
+    # Two manifests identical except for version on one entry
+    base = [
+        ManifestEntry(filename='a.json', version='1', format=None, mod={'id': 'm1'}, hash=None),
+        ManifestEntry(filename='b.json', version='2', format='x', mod=None, hash=None),
+    ]
+    changed = [
+        ManifestEntry(filename='a.json', version='1', format=None, mod={'id': 'm1'}, hash=None),
+        ManifestEntry(filename='b.json', version='3', format='x', mod=None, hash=None),
+    ]
+
+    # Default behaviour ignores version-only changes
+    assert manifest_match(base, changed) is True
+
+    # When the flag is set, versions must match
+    assert manifest_match(base, changed, accept_identical_versions=True) is False
+    assert manifest_match(changed, base, accept_identical_versions=True) is False

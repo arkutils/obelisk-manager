@@ -6,7 +6,14 @@ from typing import Annotated
 
 from typer import Argument, Context, Typer
 
-from obelisk.cmd_utils.common_args import DRY_RUN_ARG, QUIET_ARG, VERBOSE_ARG, VERSION_ARG, initialise_app
+from obelisk.cmd_utils.common_args import (
+    ACCEPT_IDENTICAL_VERSIONS_ARG,
+    DRY_RUN_ARG,
+    QUIET_ARG,
+    VERBOSE_ARG,
+    VERSION_ARG,
+    initialise_app,
+)
 from obelisk.manifest import manifest_match, parse_manifest, write_manifest
 from obelisk.scanner import create_manifest_from_folder
 
@@ -33,6 +40,7 @@ def update_manifest(
             metavar='MANIFEST',
         ),
     ],
+    accept_identical_versions: ACCEPT_IDENTICAL_VERSIONS_ARG = False,
     show_version: VERSION_ARG = False,
     dry_run: DRY_RUN_ARG = False,
     verbose: VERBOSE_ARG = False,
@@ -77,7 +85,11 @@ def update_manifest(
         return
 
     # Compare and update the manifest as needed for non-empty manifests
-    if existing_manifest and manifest_match(existing_manifest, new_manifest):
+    if existing_manifest and manifest_match(
+        existing_manifest,
+        new_manifest,
+        accept_identical_versions=accept_identical_versions,
+    ):
         print('[bold green]:thumbs_up: No updates necessary to the manifest.[/bold green]')
         return
 

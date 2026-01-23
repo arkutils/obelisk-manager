@@ -19,10 +19,14 @@ def apply_import(
     *,
     dry_run: bool,
     printer: Callable[..., None] | None = None,
+    accept_identical_versions: bool = False,
 ) -> tuple[list[ManifestEntry], list[ManifestEntry]]:
     """Copy files into dest and write updated manifest.
 
     Returns a tuple of (before_entries, after_entries).
+
+    accept_identical_versions: when True, version-only changes are treated
+    as real changes and will not be skipped during copy.
     """
 
     def _no_op_printer(_: object = None, __: object = None) -> None:  # pragma: no cover - trivial
@@ -49,7 +53,11 @@ def apply_import(
         if ext in version_only_change_insensitive_types and existing_entry is not None:
             handler = registered_types.get(ext)
             prospective_entry = handler(src) if handler else None
-            if prospective_entry and entries_match(existing_entry, prospective_entry):
+            if prospective_entry and entries_match(
+                existing_entry,
+                prospective_entry,
+                accept_identical_versions=accept_identical_versions,
+            ):
                 p(f'  * {src} unchanged (ignoring version); skipping copy')
                 continue
 

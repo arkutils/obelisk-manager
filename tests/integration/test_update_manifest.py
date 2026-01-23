@@ -110,6 +110,36 @@ def test_update_manifest_skips_version_only_change(tmp_path: Path) -> None:
     assert after == before
 
 
+def test_update_manifest_accepts_version_only_change_when_flag_set(tmp_path: Path) -> None:
+    # Arrange: create manifest with two files
+    folder = tmp_path / 'data_accept'
+    folder.mkdir()
+
+    a = folder / 'a.json'
+    b = folder / 'b.json'
+    a.write_text('{"version":"1","metadata":{"foo":"bar"}}', encoding='utf-8')
+    b.write_text('{"version":"2"}', encoding='utf-8')
+
+    res1 = runner.invoke(app, ['update-manifest', str(folder)])
+    assert res1.exit_code == 0, res1.output
+    manifest = folder / '_manifest.json'
+    before = manifest.read_text(encoding='utf-8')
+
+    # Mutate version only
+    a.write_text('{"version":"1.1","metadata":{"foo":"bar"}}', encoding='utf-8')
+
+    # Act with flag
+    res2 = runner.invoke(app, ['update-manifest', '--accept-identical-versions', str(folder)])
+
+    # Assert: change should be detected and manifest updated
+    assert res2.exit_code == 0, res2.output
+    assert 'Changes detected in the manifest.' in res2.output
+    after = manifest.read_text(encoding='utf-8')
+    assert after != before
+    entries = parse_manifest(manifest)
+    assert {e.filename: e.version for e in entries}['a.json'] == '1.1'
+
+
 def test_update_manifest_detects_non_version_content_change(tmp_path: Path) -> None:
     # Arrange: create manifest with a JSON file that has extra content
     folder = tmp_path / 'data'

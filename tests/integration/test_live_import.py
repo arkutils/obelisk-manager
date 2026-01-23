@@ -243,7 +243,8 @@ def test_live_import_version_only_change_skips_commit_and_copy(
     json_input, png_input = _write_inputs(tmp_path / 'inputs_version')
 
     res1 = runner.invoke(
-        app, ['live-import', '--repo', str(local), str(json_input), str(png_input), 'data/stable-version'],
+        app,
+        ['live-import', '--repo', str(local), str(json_input), str(png_input), 'data/stable-version'],
     )
     assert res1.exit_code == 0, res1.output
 
@@ -270,6 +271,57 @@ def test_live_import_version_only_change_skips_commit_and_copy(
     assert manifest_path.read_text(encoding='utf-8') == manifest_before
     assert _git_hash_head(local) == head_before
     assert _git_hash_remote_main(remote) == remote_hash_before
+    assert _git_is_clean(local) is True
+
+
+def test_live_import_accepts_version_only_change_when_flag_set(
+    tmp_path: Path,
+    git_remote_and_local: GitRepos,
+) -> None:
+    # Arrange: initial import
+    local = git_remote_and_local['local']
+    remote = git_remote_and_local['remote']
+    dest = local / 'data' / 'stable-version-flag'
+    dest.mkdir(parents=True, exist_ok=True)
+    json_input, png_input = _write_inputs(tmp_path / 'inputs_version_flag')
+
+    res1 = runner.invoke(
+        app,
+        ['live-import', '--repo', str(local), str(json_input), str(png_input), 'data/stable-version-flag'],
+    )
+    assert res1.exit_code == 0, res1.output
+
+    info_path = dest / 'info.json'
+    manifest_path = dest / '_manifest.json'
+    info_before = info_path.read_text(encoding='utf-8')
+    manifest_before = manifest_path.read_text(encoding='utf-8')
+    head_before = _git_hash_head(local)
+    remote_hash_before = _git_hash_remote_main(remote)
+
+    # Mutate only the version in the source input
+    json_input.write_text('{"version":"2","format":"fmt"}', encoding='utf-8')
+
+    # Act with flag - should now commit and update files
+    res2 = runner.invoke(
+        app,
+        [
+            'live-import',
+            '--repo',
+            str(local),
+            '--accept-identical-versions',
+            str(json_input),
+            str(png_input),
+            'data/stable-version-flag',
+        ],
+    )
+
+    # Assert: commit/push occurred and files updated
+    assert res2.exit_code == 0, res2.output
+    assert 'Committing changes...' in res2.output
+    assert info_path.read_text(encoding='utf-8') != info_before
+    assert manifest_path.read_text(encoding='utf-8') != manifest_before
+    assert _git_hash_head(local) != head_before
+    assert _git_hash_remote_main(remote) != remote_hash_before
     assert _git_is_clean(local) is True
 
 

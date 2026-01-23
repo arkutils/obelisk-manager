@@ -100,7 +100,16 @@ DRY_RUN_ARG = Annotated[
     ),
 ]
 
+ACCEPT_IDENTICAL_VERSIONS_ARG = Annotated[
+    bool,
+    Option(
+        '--accept-identical-versions',
+        help='Treat version-only changes as real changes.',
+    ),
+]
+
 __all__ = (
+    'ACCEPT_IDENTICAL_VERSIONS_ARG',
     'DEFAULT_LOG_LEVEL',
     'DRY_RUN_ARG',
     'QUIET_ARG',

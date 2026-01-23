@@ -7,7 +7,14 @@ from typing import TYPE_CHECKING, Annotated
 from typer import Argument, Context, Option, Typer
 
 from obelisk.cmd_utils.apply_import import apply_import
-from obelisk.cmd_utils.common_args import DRY_RUN_ARG, QUIET_ARG, VERBOSE_ARG, VERSION_ARG, initialise_app
+from obelisk.cmd_utils.common_args import (
+    ACCEPT_IDENTICAL_VERSIONS_ARG,
+    DRY_RUN_ARG,
+    QUIET_ARG,
+    VERBOSE_ARG,
+    VERSION_ARG,
+    initialise_app,
+)
 from obelisk.cmd_utils.input_utils import collect_allowed_inputs
 from obelisk.manifest import manifest_match
 
@@ -62,6 +69,7 @@ def add_files(
             help='Allow importing files normally filtered out (hidden/underscored or unrecognised types).',
         ),
     ] = False,
+    accept_identical_versions: ACCEPT_IDENTICAL_VERSIONS_ARG = False,
     show_version: VERSION_ARG = False,
     dry_run: DRY_RUN_ARG = False,
     verbose: VERBOSE_ARG = False,
@@ -90,9 +98,19 @@ def add_files(
         ctx.exit(1)
 
     # Perform copy and manifest update
-    before_entries, after_entries = apply_import(dest_path, allowed, dry_run=dry_run, printer=print)
+    before_entries, after_entries = apply_import(
+        dest_path,
+        allowed,
+        dry_run=dry_run,
+        printer=print,
+        accept_identical_versions=accept_identical_versions,
+    )
 
-    if manifest_match(before_entries, after_entries):
+    if manifest_match(
+        before_entries,
+        after_entries,
+        accept_identical_versions=accept_identical_versions,
+    ):
         print('[green]No manifest changes needed.[/green]')
         return
 

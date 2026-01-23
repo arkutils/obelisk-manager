@@ -7,7 +7,14 @@ from typing import TYPE_CHECKING, Annotated
 from typer import Argument, Context, Option, Typer
 
 from obelisk.cmd_utils.apply_import import apply_import
-from obelisk.cmd_utils.common_args import DRY_RUN_ARG, QUIET_ARG, VERBOSE_ARG, VERSION_ARG, initialise_app
+from obelisk.cmd_utils.common_args import (
+    ACCEPT_IDENTICAL_VERSIONS_ARG,
+    DRY_RUN_ARG,
+    QUIET_ARG,
+    VERBOSE_ARG,
+    VERSION_ARG,
+    initialise_app,
+)
 from obelisk.cmd_utils.input_utils import collect_allowed_inputs
 from obelisk.commits import build_commit_message
 from obelisk.git import commit_all, fast_forward, fetch, is_clean, is_git_available, push, reset_hard
@@ -121,6 +128,7 @@ def live_import(
             help='Skip pushing changes to the remote repository.',
         ),
     ] = False,
+    accept_identical_versions: ACCEPT_IDENTICAL_VERSIONS_ARG = False,
     show_version: VERSION_ARG = False,
     dry_run: DRY_RUN_ARG = False,
     verbose: VERBOSE_ARG = False,
@@ -148,10 +156,20 @@ def live_import(
     allowed = _collect_input_files(inputs, allow_all=allow_all, printer=print, ctx=ctx)
 
     # Ensure destination exists and perform copy + manifest update
-    before_entries, after_entries = apply_import(dest_path, allowed, dry_run=dry_run, printer=print)
+    before_entries, after_entries = apply_import(
+        dest_path,
+        allowed,
+        dry_run=dry_run,
+        printer=print,
+        accept_identical_versions=accept_identical_versions,
+    )
 
     # Compute commit message and decide whether to commit
-    if manifest_match(before_entries, after_entries):
+    if manifest_match(
+        before_entries,
+        after_entries,
+        accept_identical_versions=accept_identical_versions,
+    ):
         print('[green]No manifest changes needed. Skipping commit/push.[/green]')
         return
 
