@@ -1,3 +1,7 @@
+## 0.6.0
+
+* Add `--accept-identical-versions` flag to accept version-only JSON changes.
+
 ## 0.5.0
 
 * JSON files with changes only to the `version` field are no longer counted as changed
