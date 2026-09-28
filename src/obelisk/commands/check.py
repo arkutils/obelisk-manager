@@ -37,7 +37,7 @@ app = Typer()
         'and that every non-ignored file in the directory is accounted for in the manifest.'
     ),
 )
-def check(
+def check(  # noqa: PLR0917 - required for CLI arguments
     ctx: Context,
     paths: Annotated[
         list[Path] | None,

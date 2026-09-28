@@ -44,7 +44,7 @@ app = Typer()
     5. Push the changes to the remote repository
     """,
 )
-def live_import(
+def live_import(  # noqa: PLR0917 - required for CLI arguments
     ctx: Context,
     repo: Annotated[
         Path,

@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 def run_git(cwd: Path, *args: str) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
-        ('git', *args),
+        ('git', *args),  # noqa: S607 - risk acceptable for local runs
         cwd=str(cwd),
         check=True,
         capture_output=True,

@@ -37,7 +37,7 @@ app = Typer()
         'then update or create the Obelisk manifest (_manifest.json) for that folder.'
     ),
 )
-def add_files(
+def add_files(  # noqa: PLR0917 - required for CLI arguments
     ctx: Context,
     inputs: Annotated[
         list[Path],

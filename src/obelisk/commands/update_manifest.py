@@ -28,7 +28,7 @@ app = Typer()
     no_args_is_help=True,
     short_help='Update the manifest in an existing directory.',
 )
-def update_manifest(
+def update_manifest(  # noqa: PLR0917 - required for CLI arguments
     ctx: Context,
     folder_or_manifest: Annotated[
         Path,
