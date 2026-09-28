@@ -1,3 +1,7 @@
+## 0.7.0
+
+* Add `check` command to validate existing manifest files against directory contents.
+
 ## 0.6.0
 
 * Add `--accept-identical-versions` flag to accept version-only JSON changes.
