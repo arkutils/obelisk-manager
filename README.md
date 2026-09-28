@@ -113,6 +113,20 @@ Commit messages:
 - Additionally, `$path` is provided as the destination path value.
 - Include a formatted file change list by default; suppress with `--exclude-file-list`.
 
+### check
+Verify that a directory's files match its manifest; intended for CI, but usable manually.
+
+```bash
+uvx git+https://github.com/arkutils/obelisk-manager check [PATHS...] \
+    [--ignore <PATTERN>] [--fast-check] [--accept-identical-versions] [-v|-q]
+```
+
+Behavior:
+- Accepts any number of directories (or direct paths to a `_manifest.json`); defaults to the current directory if none are given.
+- Each path is checked and reported independently; the process exits non-zero if any path has issues.
+- For every manifest entry, confirms the file exists, is a recognised type, and (by default) its recomputed metadata matches the manifest. Pass `--fast-check` to skip the metadata comparison and only check existence/type.
+- Recursively scans the directory for files not referenced by the manifest ("untracked files"), skipping anything matched by `--ignore` (repeatable glob pattern, supports `**`). Defaults to ignoring `.*`, `**/.*`, `!*`, `**/!*`, `Thumbs.db`, `__pycache__` and `**/__pycache__`; passing `--ignore` replaces these defaults entirely. The manifest file itself is always excluded.
+
 
 ## Troubleshooting
 
